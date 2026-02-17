@@ -1,0 +1,4 @@
+# MagoLoader - Dependencias
+customtkinter>=5.2.0
+yt-dlp[curl-cffi]>=2026.2.4
+Pillow>=10.0.0
