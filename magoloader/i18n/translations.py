@@ -5,7 +5,7 @@ from magoloader.i18n.detector import get_current_language
 
 TRANSLATIONS = {
     "es": {
-        "app.title": "MagoLoader",
+        "app.title": "MagoLoader - Descargador de videos sin marca de agua",
         "header.username_placeholder": "@usuario",
         "header.analyze": "Analizar",
         "header.analyzing": "Analizando...",
@@ -42,7 +42,7 @@ TRANSLATIONS = {
         "video.no_title": "Sin título",
     },
     "en": {
-        "app.title": "MagoLoader",
+        "app.title": "MagoLoader - Video Downloader without watermark",
         "header.username_placeholder": "@username",
         "header.analyze": "Analyze",
         "header.analyzing": "Analyzing...",
@@ -79,7 +79,7 @@ TRANSLATIONS = {
         "video.no_title": "No title",
     },
     "pt": {
-        "app.title": "MagoLoader",
+        "app.title": "MagoLoader - Baixar vídeos sem marca d'água",
         "header.username_placeholder": "@usuário",
         "header.analyze": "Analisar",
         "header.analyzing": "Analisando...",

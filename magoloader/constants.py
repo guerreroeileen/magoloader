@@ -37,3 +37,8 @@ WINDOW_MINSIZE = (900, 600)
 # Idiomas soportados (código ISO 639-1)
 SUPPORTED_LANGUAGES = ("es", "en", "pt")
 DEFAULT_LANGUAGE = "en"
+
+# Analytics (Google Analytics 4)
+GA_MEASUREMENT_ID = "G-Y3H384N20T"
+GA_API_SECRET = "kz3UQZRbTDWa-oqFLuILew"
+

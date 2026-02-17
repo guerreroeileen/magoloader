@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Ventana principal de MagoLoader."""
 
+import os
 import queue
 import threading
 from typing import List
@@ -18,6 +19,8 @@ from magoloader.constants import (
     WINDOW_MINSIZE,
     WINDOW_TITLE,
 )
+from magoloader.version import __version__
+from magoloader.core.analytics import Analytics
 from magoloader.core.downloader import download_video
 from magoloader.core.extractors.factory import ExtractorFactory
 from magoloader.core.models import ProfileInfo, VideoEntry
@@ -49,9 +52,19 @@ def _entry_to_dict(e: VideoEntry) -> dict:
 class MagoLoaderApp(ctk.CTk):
     def __init__(self):
         super().__init__()
-        self.title(t("app.title"))
+        self.title(f"{t('app.title')} v{__version__}")
         self.geometry(WINDOW_GEOMETRY)
         self.minsize(*WINDOW_MINSIZE)
+
+        # application icon
+        try:
+            icon_path = os.path.join(
+                os.path.dirname(os.path.abspath(__file__)), "..", "..", "magoloader.ico"
+            )
+            if os.path.exists(icon_path):
+                self.iconbitmap(icon_path)
+        except Exception:
+            pass
 
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
@@ -67,6 +80,12 @@ class MagoLoaderApp(ctk.CTk):
         self.pending_ui_updates: queue.Queue = queue.Queue()
         self._analysis_running = False
         self._download_running = False
+
+        self._analysis_running = False
+        self._download_running = False
+        
+        # Analytics
+        self.analytics = Analytics()
 
         self._build_ui()
         self._process_ui_queue()
@@ -327,6 +346,7 @@ class MagoLoaderApp(ctk.CTk):
         total = len(selected)
 
         def do_download():
+            self.analytics.track_download(total)
             for i, entry in enumerate(selected):
                 try:
                     download_video(entry["url"], self.save_dir)
