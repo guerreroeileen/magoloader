@@ -44,14 +44,16 @@ class VideoCard(ctk.CTkFrame):
             width=CARD_WIDTH,
             **kwargs,
         )
-        self.grid_propagate(False)
+        # Permitir que el frame crezca verticalmente según contenido
+        # self.grid_propagate(False) 
         self._entry = entry
         self._var = var
         self._on_toggle = on_toggle
         self._ui_queue = ui_update_queue
-        self._image_ref = None  # mantener referencia para que no se borre la imagen
+        self._image_ref = None
 
-        # Contenedor de la miniatura (clicable)
+        # Container principal (vertical)
+        # 1. Miniatura
         self.thumb_frame = ctk.CTkFrame(
             self,
             fg_color=COLOR_PLACEHOLDER,
@@ -59,12 +61,14 @@ class VideoCard(ctk.CTkFrame):
             width=THUMBNAIL_WIDTH,
             height=THUMBNAIL_HEIGHT,
         )
-        self.thumb_frame.place(x=8, y=8)
+        self.thumb_frame.pack(padx=10, pady=10, side="top")
+        
+        # Bindings para clic en el frame
         self.thumb_frame.bind("<Button-1>", self._on_thumb_click)
         self.thumb_frame.bind("<Enter>", lambda e: self.thumb_frame.configure(cursor="hand2"))
         self.thumb_frame.bind("<Leave>", lambda e: self.thumb_frame.configure(cursor=""))
 
-        # Label para imagen o placeholder (dentro del frame para que el clic funcione)
+        # Imagen / Placeholder
         self.thumb_label = ctk.CTkLabel(
             self.thumb_frame,
             text="▶",
@@ -78,44 +82,51 @@ class VideoCard(ctk.CTkFrame):
         self.thumb_label.bind("<Button-1>", self._on_thumb_click)
         self.thumb_label.bind("<Enter>", lambda e: self.thumb_label.configure(cursor="hand2"))
 
-        # Checkbox (compartido con el padre para selección)
+        # Duración (overlay en la esquina inferior derecha de la miniatura)
+        dur = format_duration(entry.get("duration"))
+        self.dur_label = ctk.CTkLabel(
+            self.thumb_frame,
+            text=dur,
+            font=ctk.CTkFont(size=11, weight="bold"),
+            text_color=COLOR_TEXT,
+            fg_color=COLOR_OVERLAY,
+            corner_radius=4,
+        )
+        # place relativo al thumb_frame
+        self.dur_label.place(relx=0.96, rely=0.96, anchor="se")
+
+        # Checkbox (overlay en la esquina superior derecha del CARD, sobre la miniatura visualmente)
+        # Como thumb_frame tiene padding=10, el checkbox en (x=-6, y=6) del padre quedará bien.
         self.cb = ctk.CTkCheckBox(
             self,
             text="",
             variable=var,
             width=24,
             height=24,
+            checkbox_width=24,
+            checkbox_height=24,
             fg_color=COLOR_ACCENT,
             hover_color=COLOR_ACCENT_HOVER,
             command=self._on_checkbox_change,
         )
-        self.cb.place(relx=1.0, x=-36, y=8, anchor="ne")
+        self.cb.place(relx=1.0, x=-14, y=14, anchor="ne")
 
-        # Duración
-        dur = format_duration(entry.get("duration"))
-        self.dur_label = ctk.CTkLabel(
-            self,
-            text=dur,
-            font=ctk.CTkFont(size=11),
-            text_color=COLOR_TEXT,
-            fg_color=COLOR_OVERLAY,
-        )
-        self.dur_label.place(x=12, y=8 + THUMBNAIL_HEIGHT - 22)
-
-        # Título
+        # 2. Título
         title = entry.get("title") or t("video.no_title")
-        title = truncate(title, 35)
-        ctk.CTkLabel(
+        title = truncate(title, 55) # Título más largo permitido por el ancho extra
+        
+        self.title_label = ctk.CTkLabel(
             self,
             text=title,
-            font=ctk.CTkFont(size=12),
+            font=ctk.CTkFont(size=13, weight="bold"), # Fuente un poco más grande/negrita
             text_color=COLOR_TEXT,
-            wraplength=200,
+            wraplength=CARD_WIDTH - 24, # Padding interno
             anchor="w",
             justify="left",
-        ).pack(padx=12, pady=(8, 12), fill="x", anchor="w")
+        )
+        self.title_label.pack(padx=12, pady=(0, 12), fill="x", anchor="w")
 
-        # Cargar miniatura en segundo plano (URL directa o vía oEmbed si no hay)
+        # Cargar miniatura
         if self._ui_queue is not None:
             load_video_thumbnail_async(
                 video_url=entry.get("url", ""),
@@ -131,12 +142,10 @@ class VideoCard(ctk.CTkFrame):
         self._on_toggle()
 
     def _on_thumbnail_loaded(self, path: Optional[str]):
-        """Llamado desde el hilo del loader; encola actualización en el hilo de UI."""
         if path and self._ui_queue is not None:
             self._ui_queue.put(lambda: self._set_thumbnail(path))
 
     def _set_thumbnail(self, path: str):
-        """Llamar solo desde el hilo de UI. Muestra la imagen en thumb_label."""
         try:
             self._image_ref = ctk.CTkImage(
                 light_image=path,

@@ -244,13 +244,12 @@ class MagoLoaderApp(ctk.CTk):
             )
             card.grid(row=row, column=col, padx=8, pady=8, sticky="nsew")
             col += 1
-            if col >= 3:
+            if col >= 2:
                 col = 0
                 row += 1
 
         self.videos_inner.columnconfigure(0, weight=1)
         self.videos_inner.columnconfigure(1, weight=1)
-        self.videos_inner.columnconfigure(2, weight=1)
 
     def _sync_selection(self, url: str, var: ctk.BooleanVar):
         if var.get():
