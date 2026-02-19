@@ -18,6 +18,7 @@ CONFIG_DIR = os.path.join(os.path.expanduser("~"), ".magoloader")
 class Analytics:
     _instance = None
     _client_id = None
+    _session_id = None
 
     def __new__(cls):
         if cls._instance is None:
@@ -27,6 +28,7 @@ class Analytics:
 
     def _init(self):
         self._load_or_create_client_id()
+        self._session_id = str(uuid.uuid4().int >> 64)  # Generar session_id numérico corto
 
     def _load_or_create_client_id(self):
         """Carga el ID del cliente o crea uno nuevo si no existe."""
@@ -64,7 +66,11 @@ class Analytics:
                 "client_id": self._client_id,
                 "events": [{
                     "name": event_name,
-                    "params": params,
+                    "params": {
+                        "session_id": self._session_id,
+                        "engagement_time_msec": "1",
+                        **params
+                    },
                 }]
             }
             
@@ -87,4 +93,30 @@ class Analytics:
         self.track_event("download", {
             "video_count": video_count,
             "app_version": __version__
+        })
+
+    def track_app_start(self):
+        """Rastrea el inicio de la aplicación."""
+        self.track_event("app_start", {
+            "app_version": __version__
+        })
+
+    def track_analysis_start(self, username: str):
+        """Rastrea el inicio de un análisis de perfil."""
+        self.track_event("analysis_start", {
+            "target_username": username
+        })
+
+    def track_analysis_success(self, username: str, video_count: int):
+        """Rastrea el éxito de un análisis de perfil."""
+        self.track_event("analysis_success", {
+            "target_username": username,
+            "video_count": video_count
+        })
+
+    def track_error(self, error_type: str, message: str):
+        """Rastrea un error en la aplicación."""
+        self.track_event("app_error", {
+            "error_type": error_type,
+            "message": message[:100]  # Limitar longitud
         })

@@ -86,6 +86,7 @@ class MagoLoaderApp(ctk.CTk):
         
         # Analytics
         self.analytics = Analytics()
+        self.analytics.track_app_start()
 
         self._build_ui()
         self._process_ui_queue()
@@ -184,6 +185,7 @@ class MagoLoaderApp(ctk.CTk):
         threading.Thread(target=wrapper, daemon=True).start()
 
     def _show_error(self, msg: str):
+        self.analytics.track_error("ui_error", msg)
         messagebox.showerror("Error", msg)
 
     def _show_info(self, msg: str):
@@ -199,6 +201,7 @@ class MagoLoaderApp(ctk.CTk):
             return
         self._analysis_running = True
         self.header.set_analyzing(True)
+        self.analytics.track_analysis_start(username)
 
         def do_analyze():
             extractor = ExtractorFactory.get_extractor(username)
@@ -208,7 +211,12 @@ class MagoLoaderApp(ctk.CTk):
 
         def on_done():
             self._analysis_running = False
+            self.header.set_analyzing(True) # This looks like a bug in existing code (should be False), but I'll fix it if it's False
             self.header.set_analyzing(False)
+            if self.profile_info:
+                self.analytics.track_analysis_success(
+                    self.profile_info.username, len(self.profile_info.entries)
+                )
 
         self._run_in_thread(do_analyze, on_done)
 
