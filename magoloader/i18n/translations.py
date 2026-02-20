@@ -40,6 +40,10 @@ TRANSLATIONS = {
         ),
         "info.download_finished": "Descarga finalizada.",
         "video.no_title": "Sin título",
+        "update.title": "Actualización disponible",
+        "update.message": "Hay una nueva versión disponible ({latest}). Tu versión actual es {current}. Debes actualizar para continuar.",
+        "update.download": "Descargar",
+        "update.exit": "Salir",
     },
     "en": {
         "app.title": "MagoLoader - Video Downloader without watermark",
@@ -77,6 +81,10 @@ TRANSLATIONS = {
         ),
         "info.download_finished": "Download finished.",
         "video.no_title": "No title",
+        "update.title": "Update Available",
+        "update.message": "A new version is available ({latest}). Your current version is {current}. You must update to continue.",
+        "update.download": "Download",
+        "update.exit": "Exit",
     },
     "pt": {
         "app.title": "MagoLoader - Baixar vídeos sem marca d'água",
@@ -114,6 +122,10 @@ TRANSLATIONS = {
         ),
         "info.download_finished": "Descarregamento concluído.",
         "video.no_title": "Sem título",
+        "update.title": "Atualização disponível",
+        "update.message": "Uma nova versão está disponível ({latest}). Sua versão atual é {current}. Você deve atualizar para continuar.",
+        "update.download": "Baixar",
+        "update.exit": "Sair",
     },
 }
 

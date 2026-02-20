@@ -375,5 +375,18 @@ class MagoLoaderApp(ctk.CTk):
 
 def run_app():
     ensure_dir(DEFAULT_SAVE_DIR)
+
+    # Mandatory version check before launching the main window
+    from magoloader.core.updater import check_for_updates
+    from magoloader.ui.update_dialog import UpdateDialog
+
+    update_info = check_for_updates()
+    if update_info.update_available:
+        root = ctk.CTk()
+        root.withdraw()
+        UpdateDialog(root, update_info)
+        root.mainloop()
+        return  # user either downloaded or exited; never reached
+
     app = MagoLoaderApp()
     app.mainloop()
