@@ -1,0 +1,50 @@
+schema: spec-driven
+
+# Project context
+# Shown to AI when creating artifacts.
+context: |
+  Tech Stack:
+    - Language: Python 3.10+
+    - GUI Framework: CustomTkinter (dark theme, TikTok aesthetic accent #FE2C55)
+    - Downloader: yt-dlp with yt-dlp[curl-cffi]
+    - Imaging: Pillow (PIL)
+    - Build System: PyInstaller (standalone single-file executable)
+    - Localization: Multi-language i18n (Spanish, English, Portuguese) with system locale detection
+    - Analytics: GA4 (Google Analytics 4 Measurement Protocol)
+
+  Architecture & Structure:
+    - Package: `magoloader/`
+    - Core: `magoloader/core/` (Extractors factory pattern, downloader wrapper, data models, updater, analytics)
+    - UI: `magoloader/ui/` (CustomTkinter App window, modular components: Header, Sidebar, VideoCard, Footer, Pagination, ThumbnailLoader, UpdateDialog)
+    - i18n: `magoloader/i18n/` (Locale detection, translations dictionary)
+    - Entry Point: `main.py`
+    - Build Scripts: `build.py`, `clean.py`, `MagoLoader.spec`
+
+  Guidelines & Conventions:
+    - Asynchronous / Non-blocking GUI: All network extractions, thumbnail downloads, auto-update checks, and video downloads MUST run in background threads (`threading.Thread`).
+    - Error Handling: Graceful error messages via UI popups or status labels without freezing the main loop.
+    - Theme Tokens: Dark background (`#121212`), TikTok Red accent (`#FE2C55`), Card backgrounds (`#1E1E1E`, `#252525`), Text (`#FFFFFF`, `#B0B0B0`).
+    - Coding style: UTF-8 standard encoding header (`# -*- coding: utf-8 -*-`), docstrings, explicit type hints.
+
+# Per-artifact rules
+rules:
+  proposal:
+    - Explain user-facing impact and tech stack requirements clearly.
+    - Highlight non-goals and potential performance/threading considerations.
+  design:
+    - Detailed component hierarchy and data flow breakdown.
+    - Document UI state changes, thread safety, and fallback handling.
+  tasks:
+    - Break work into atomic, testable execution tasks.
+    - Include explicit manual and/or automated verification steps for every task.
+
+# Per-operation guidance
+operations:
+  apply:
+    guidance:
+      - Ensure GUI remain responsive during network calls; do not block main thread.
+      - Preserve existing multi-language translation strings when altering UI labels.
+      - Run clean build/tests to confirm functionality.
+  archive:
+    guidance:
+      - Verify sync between main specs and delta specs before completing archive.

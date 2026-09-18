@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 import yt_dlp
+from yt_dlp.utils import DownloadError, ExtractorError
 from typing import Optional, List
 from .base import BaseExtractor
 from ..models import ProfileInfo, VideoEntry
@@ -44,7 +45,7 @@ class TikTokExtractor(BaseExtractor):
                 with yt_dlp.YoutubeDL(opts) as ydl:
                     info = ydl.extract_info(url, download=False)
                 break
-            except Exception as e:
+            except (DownloadError, ExtractorError, Exception) as e:
                 last_error = e
                 if attempt < self.EXTRACT_RETRIES - 1:
                     time.sleep(self.RETRY_DELAY_SEC)

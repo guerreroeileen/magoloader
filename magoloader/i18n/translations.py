@@ -26,7 +26,15 @@ TRANSLATIONS = {
         "error.ytdlp": (
             "TikTok ha cambiado su web o yt-dlp está desactualizado.\n\n"
             "1. Actualiza yt-dlp desde la terminal:\n"
-            "   pip install -U yt-dlp\n\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
+            "2. El fallo a veces es intermitente; prueba de nuevo en unos minutos.\n\n"
+            "3. Si sigue fallando, revisa en GitHub si hay una versión más reciente:\n"
+            "   https://github.com/yt-dlp/yt-dlp/releases"
+        ),
+        "err_ytdlp_outdated": (
+            "TikTok ha cambiado su web o yt-dlp está desactualizado.\n\n"
+            "1. Actualiza yt-dlp desde la terminal:\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
             "2. El fallo a veces es intermitente; prueba de nuevo en unos minutos.\n\n"
             "3. Si sigue fallando, revisa en GitHub si hay una versión más reciente:\n"
             "   https://github.com/yt-dlp/yt-dlp/releases"
@@ -35,7 +43,7 @@ TRANSLATIONS = {
             "Error SSL/TLS al conectar con TikTok (ej. TLSV1_ALERT_INTERNAL_ERROR).\n\n"
             "Instala el soporte de suplantación de navegador (recomendado):\n"
             "   pip install \"yt-dlp[curl-cffi]\"\n\n"
-            "O reinstala todas las dependencias:\n"
+            "Or reinstala todas las dependencias:\n"
             "   pip install -r requirements.txt"
         ),
         "info.download_finished": "Descarga finalizada.",
@@ -67,7 +75,15 @@ TRANSLATIONS = {
         "error.ytdlp": (
             "TikTok has changed their site or yt-dlp is outdated.\n\n"
             "1. Update yt-dlp from the terminal:\n"
-            "   pip install -U yt-dlp\n\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
+            "2. The failure is sometimes intermittent; try again in a few minutes.\n\n"
+            "3. If it still fails, check GitHub for a newer version:\n"
+            "   https://github.com/yt-dlp/yt-dlp/releases"
+        ),
+        "err_ytdlp_outdated": (
+            "TikTok has changed their site or yt-dlp is outdated.\n\n"
+            "1. Update yt-dlp from the terminal:\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
             "2. The failure is sometimes intermittent; try again in a few minutes.\n\n"
             "3. If it still fails, check GitHub for a newer version:\n"
             "   https://github.com/yt-dlp/yt-dlp/releases"
@@ -108,7 +124,15 @@ TRANSLATIONS = {
         "error.ytdlp": (
             "O TikTok alterou o site ou o yt-dlp está desatualizado.\n\n"
             "1. Atualiza o yt-dlp no terminal:\n"
-            "   pip install -U yt-dlp\n\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
+            "2. O falho às vezes é intermitente; tenta novamente em alguns minutos.\n\n"
+            "3. Se continuar a falhar, verifica no GitHub se há uma versão mais recente:\n"
+            "   https://github.com/yt-dlp/yt-dlp/releases"
+        ),
+        "err_ytdlp_outdated": (
+            "O TikTok alterou o site ou o yt-dlp está desatualizado.\n\n"
+            "1. Atualiza o yt-dlp no terminal:\n"
+            "   pip install -U \"yt-dlp[curl-cffi]\"\n\n"
             "2. O falho às vezes é intermitente; tenta novamente em alguns minutos.\n\n"
             "3. Se continuar a falhar, verifica no GitHub se há uma versão mais recente:\n"
             "   https://github.com/yt-dlp/yt-dlp/releases"

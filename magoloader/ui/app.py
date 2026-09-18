@@ -172,7 +172,7 @@ class MagoLoaderApp(ctk.CTk):
                     )
                 elif is_ytdlp_extraction_error(e):
                     self.pending_ui_updates.put(
-                        lambda: self._show_error(t("error.ytdlp"))
+                        lambda: self._show_error(t("err_ytdlp_outdated"))
                     )
                 else:
                     self.pending_ui_updates.put(

@@ -6,6 +6,7 @@ import time
 from typing import List, Optional
 
 import yt_dlp
+from yt_dlp.utils import DownloadError, ExtractorError
 
 
 EXTRACT_RETRIES = 3
@@ -26,9 +27,6 @@ def _base_opts() -> dict:
     return opts
 
 
-
-
-
 def download_video(
     url: str,
     save_dir: str,
@@ -47,5 +45,9 @@ def download_video(
         "outtmpl": outtmpl,
         "restrictfilenames": True,
     })
-    with yt_dlp.YoutubeDL(opts) as ydl:
-        ydl.download([url])
+    try:
+        with yt_dlp.YoutubeDL(opts) as ydl:
+            ydl.download([url])
+    except (DownloadError, ExtractorError) as e:
+        raise RuntimeError(f"Error descargando el video: {e}") from e
+
