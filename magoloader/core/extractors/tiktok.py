@@ -100,3 +100,48 @@ class TikTokExtractor(BaseExtractor):
             thumbnail=thumb,
             entries=entries,
         )
+
+    def extract_video(self, url: str) -> VideoEntry:
+        """
+        Extrae los metadatos de un único video de TikTok (resuelve enlaces cortos).
+        Reintenta hasta EXTRACT_RETRIES veces ante errores temporales.
+        """
+        opts = self._base_opts()
+        opts.update({
+            "ignoreerrors": False,
+            "noplaylist": True,
+        })
+
+        last_error: Optional[Exception] = None
+        info = None
+
+        for attempt in range(self.EXTRACT_RETRIES):
+            try:
+                with yt_dlp.YoutubeDL(opts) as ydl:
+                    info = ydl.extract_info(url, download=False)
+                break
+            except (DownloadError, ExtractorError, Exception) as e:
+                last_error = e
+                if attempt < self.EXTRACT_RETRIES - 1:
+                    time.sleep(self.RETRY_DELAY_SEC)
+
+        if info is None:
+            if last_error:
+                raise last_error
+            raise RuntimeError("No se pudo extraer el video.")
+
+        if info.get("_type") == "playlist" or info.get("entries") is not None or not info.get("id"):
+            raise RuntimeError("La URL no corresponde a un único video.")
+
+        thumb = self._first_thumbnail_url(
+            info.get("thumbnail"),
+            info.get("thumbnails"),
+        )
+        return VideoEntry(
+            url=info.get("webpage_url") or info.get("original_url") or url,
+            id=str(info.get("id")),
+            title=info.get("title") or info.get("description") or None,
+            duration=info.get("duration"),
+            thumbnail=thumb,
+            uploader=info.get("uploader") or info.get("uploader_id") or info.get("channel"),
+        )

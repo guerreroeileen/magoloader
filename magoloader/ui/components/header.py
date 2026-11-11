@@ -1,53 +1,31 @@
 # -*- coding: utf-8 -*-
-"""Header con entrada de usuario y botón Analizar."""
+"""Header de la pestaña Perfil: entrada de usuario y botón Analizar."""
 
-import customtkinter as ctk
+from typing import Callable
 
-from magoloader.constants import COLOR_ACCENT, COLOR_ACCENT_HOVER, COLOR_CARD, COLOR_TEXT
 from magoloader.i18n import t
+from magoloader.ui.components.input_bar import InputBar
 
 
-class Header(ctk.CTkFrame):
-    def __init__(self, master, on_analyze, **kwargs):
-        super().__init__(master, fg_color="transparent", height=56, **kwargs)
-        self.pack_propagate(False)
-        self._on_analyze = on_analyze
+class Header(InputBar):
+    """InputBar configurada para analizar un @usuario de TikTok."""
 
-        ctk.CTkLabel(
-            self,
-            text=t("app.title"),
-            font=ctk.CTkFont(size=22, weight="bold"),
-            text_color=COLOR_TEXT,
-        ).pack(side="left", padx=(0, 24))
-
-        self.entry_username = ctk.CTkEntry(
-            self,
-            placeholder_text=t("header.username_placeholder"),
-            width=280,
-            height=36,
-            border_color=COLOR_ACCENT,
-            fg_color=COLOR_CARD,
-            text_color=COLOR_TEXT,
+    def __init__(self, master, on_analyze: Callable[[], None], **kwargs):
+        super().__init__(
+            master,
+            placeholder=t("header.username_placeholder"),
+            button_text=t("header.analyze"),
+            busy_text=t("header.analyzing"),
+            on_submit=on_analyze,
+            entry_width=280,
+            **kwargs,
         )
-        self.entry_username.pack(side="left", padx=(0, 12))
-        self.entry_username.bind("<Return>", lambda e: on_analyze())
-
-        self.btn_analyze = ctk.CTkButton(
-            self,
-            text=t("header.analyze"),
-            fg_color=COLOR_ACCENT,
-            hover_color=COLOR_ACCENT_HOVER,
-            width=100,
-            height=36,
-            command=on_analyze,
-        )
-        self.btn_analyze.pack(side="left")
+        # Compatibilidad con el código existente
+        self.entry_username = self.entry
+        self.btn_analyze = self.button
 
     def get_username(self) -> str:
-        return self.entry_username.get().strip()
+        return self.get_value()
 
-    def set_analyzing(self, analyzing: bool):
-        if analyzing:
-            self.btn_analyze.configure(state="disabled", text=t("header.analyzing"))
-        else:
-            self.btn_analyze.configure(state="normal", text=t("header.analyze"))
+    def set_analyzing(self, analyzing: bool) -> None:
+        self.set_busy(analyzing)

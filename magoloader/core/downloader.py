@@ -3,7 +3,7 @@
 
 import os
 import time
-from typing import List, Optional
+from typing import Callable, List, Optional
 
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
@@ -31,10 +31,13 @@ def download_video(
     url: str,
     save_dir: str,
     outtmpl: Optional[str] = None,
-) -> None:
+    on_progress: Optional[Callable[[float], None]] = None,
+) -> Optional[str]:
     """
-    Descarga un video por URL en save_dir.
+    Descarga un video por URL en save_dir y devuelve la ruta del archivo guardado.
     outtmpl: plantilla yt-dlp (por defecto fecha_título.ext).
+    on_progress: callback opcional con la fracción completada (0..1). Se invoca
+        desde el hilo de descarga; el llamador debe pasar el resultado al hilo UI.
     """
     if not outtmpl:
         outtmpl = os.path.join(
@@ -45,9 +48,39 @@ def download_video(
         "outtmpl": outtmpl,
         "restrictfilenames": True,
     })
+    if on_progress is not None:
+        opts["progress_hooks"] = [_make_progress_hook(on_progress)]
     try:
         with yt_dlp.YoutubeDL(opts) as ydl:
-            ydl.download([url])
+            info = ydl.extract_info(url, download=True)
+            return _downloaded_path(ydl, info)
     except (DownloadError, ExtractorError) as e:
         raise RuntimeError(f"Error descargando el video: {e}") from e
 
+
+def _make_progress_hook(on_progress: Callable[[float], None]) -> Callable[[dict], None]:
+    """Convierte los eventos de progreso de yt-dlp en una fracción 0..1."""
+    def hook(d: dict) -> None:
+        status = d.get("status")
+        if status == "downloading":
+            total = d.get("total_bytes") or d.get("total_bytes_estimate")
+            done = d.get("downloaded_bytes")
+            if total and done is not None:
+                on_progress(max(0.0, min(1.0, done / total)))
+        elif status == "finished":
+            on_progress(1.0)
+    return hook
+
+
+def _downloaded_path(ydl: "yt_dlp.YoutubeDL", info: Optional[dict]) -> Optional[str]:
+    """Obtiene la ruta final del archivo descargado a partir del info de yt-dlp."""
+    if not info:
+        return None
+    for item in info.get("requested_downloads") or []:
+        path = item.get("filepath") or item.get("filename")
+        if path:
+            return path
+    try:
+        return ydl.prepare_filename(info)
+    except Exception:
+        return None

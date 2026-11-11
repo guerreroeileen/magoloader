@@ -13,6 +13,7 @@ class VideoEntry:
     title: Optional[str] = None
     duration: Optional[float] = None
     thumbnail: Optional[str] = None
+    uploader: Optional[str] = None
 
 
 @dataclass

@@ -95,6 +95,12 @@ class Analytics:
             "app_version": __version__
         })
 
+    def track_url_download(self):
+        """Rastrea la descarga de un video individual por URL."""
+        self.track_event("url_download", {
+            "app_version": __version__
+        })
+
     def track_app_start(self):
         """Rastrea el inicio de la aplicación."""
         self.track_event("app_start", {

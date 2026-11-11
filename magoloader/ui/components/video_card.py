@@ -2,6 +2,7 @@
 """Card de video con miniatura, duración, título y selección (clic en miniatura)."""
 
 import customtkinter as ctk
+from PIL import Image
 from typing import Any, Callable, Optional
 
 from magoloader.constants import (
@@ -32,11 +33,16 @@ class VideoCard(ctk.CTkFrame):
         self,
         master,
         entry: dict,
-        var: ctk.BooleanVar,
-        on_toggle: Callable[[], None],
+        var: Optional[ctk.BooleanVar],
+        on_toggle: Optional[Callable[[], None]],
         ui_update_queue: Any,
+        selectable: bool = True,
         **kwargs,
     ):
+        """
+        selectable: si es False (p. ej. vista previa de un único video) no se muestra
+        el checkbox y el clic en la miniatura no hace nada; var/on_toggle pueden ser None.
+        """
         super().__init__(
             master,
             fg_color=COLOR_CARD_DARK,
@@ -49,6 +55,7 @@ class VideoCard(ctk.CTkFrame):
         self._entry = entry
         self._var = var
         self._on_toggle = on_toggle
+        self._selectable = selectable and var is not None
         self._ui_queue = ui_update_queue
         self._image_ref = None
 
@@ -64,9 +71,10 @@ class VideoCard(ctk.CTkFrame):
         self.thumb_frame.pack(padx=10, pady=10, side="top")
         
         # Bindings para clic en el frame
-        self.thumb_frame.bind("<Button-1>", self._on_thumb_click)
-        self.thumb_frame.bind("<Enter>", lambda e: self.thumb_frame.configure(cursor="hand2"))
-        self.thumb_frame.bind("<Leave>", lambda e: self.thumb_frame.configure(cursor=""))
+        if self._selectable:
+            self.thumb_frame.bind("<Button-1>", self._on_thumb_click)
+            self.thumb_frame.bind("<Enter>", lambda e: self.thumb_frame.configure(cursor="hand2"))
+            self.thumb_frame.bind("<Leave>", lambda e: self.thumb_frame.configure(cursor=""))
 
         # Imagen / Placeholder
         self.thumb_label = ctk.CTkLabel(
@@ -79,8 +87,9 @@ class VideoCard(ctk.CTkFrame):
             height=THUMBNAIL_HEIGHT,
         )
         self.thumb_label.place(x=0, y=0)
-        self.thumb_label.bind("<Button-1>", self._on_thumb_click)
-        self.thumb_label.bind("<Enter>", lambda e: self.thumb_label.configure(cursor="hand2"))
+        if self._selectable:
+            self.thumb_label.bind("<Button-1>", self._on_thumb_click)
+            self.thumb_label.bind("<Enter>", lambda e: self.thumb_label.configure(cursor="hand2"))
 
         # Duración (overlay en la esquina inferior derecha de la miniatura)
         dur = format_duration(entry.get("duration"))
@@ -97,19 +106,21 @@ class VideoCard(ctk.CTkFrame):
 
         # Checkbox (overlay en la esquina superior derecha del CARD, sobre la miniatura visualmente)
         # Como thumb_frame tiene padding=10, el checkbox en (x=-6, y=6) del padre quedará bien.
-        self.cb = ctk.CTkCheckBox(
-            self,
-            text="",
-            variable=var,
-            width=24,
-            height=24,
-            checkbox_width=24,
-            checkbox_height=24,
-            fg_color=COLOR_ACCENT,
-            hover_color=COLOR_ACCENT_HOVER,
-            command=self._on_checkbox_change,
-        )
-        self.cb.place(relx=1.0, x=-14, y=14, anchor="ne")
+        self.cb = None
+        if self._selectable:
+            self.cb = ctk.CTkCheckBox(
+                self,
+                text="",
+                variable=var,
+                width=24,
+                height=24,
+                checkbox_width=24,
+                checkbox_height=24,
+                fg_color=COLOR_ACCENT,
+                hover_color=COLOR_ACCENT_HOVER,
+                command=self._on_checkbox_change,
+            )
+            self.cb.place(relx=1.0, x=-14, y=14, anchor="ne")
 
         # 2. Título
         title = entry.get("title") or t("video.no_title")
@@ -135,11 +146,15 @@ class VideoCard(ctk.CTkFrame):
             )
 
     def _on_thumb_click(self, event=None):
+        if not self._selectable:
+            return
         self._var.set(not self._var.get())
-        self._on_toggle()
+        if self._on_toggle:
+            self._on_toggle()
 
     def _on_checkbox_change(self):
-        self._on_toggle()
+        if self._on_toggle:
+            self._on_toggle()
 
     def _on_thumbnail_loaded(self, path: Optional[str]):
         if path and self._ui_queue is not None:
@@ -147,9 +162,12 @@ class VideoCard(ctk.CTkFrame):
 
     def _set_thumbnail(self, path: str):
         try:
+            # CTkImage requiere objetos PIL, no rutas
+            with Image.open(path) as img:
+                pil_img = img.convert("RGB")
             self._image_ref = ctk.CTkImage(
-                light_image=path,
-                dark_image=path,
+                light_image=pil_img,
+                dark_image=pil_img,
                 size=(THUMBNAIL_WIDTH, THUMBNAIL_HEIGHT),
             )
             self.thumb_label.configure(image=self._image_ref, text="")

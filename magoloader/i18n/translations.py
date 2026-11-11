@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Cadenas traducidas (es, en, pt)."""
+"""Cadenas traducidas (es, en, pt).
+
+Toda clave nueva debe existir en los tres idiomas (ver scripts/check_i18n.py).
+"""
 
 from magoloader.i18n.detector import get_current_language
 
@@ -52,6 +55,19 @@ TRANSLATIONS = {
         "update.message": "Hay una nueva versión disponible ({latest}). Tu versión actual es {current}. Debes actualizar para continuar.",
         "update.download": "Descargar",
         "update.exit": "Salir",
+        "tabs.profile": "Perfil",
+        "tabs.url": "URL de video",
+        "url.placeholder": "Pega el enlace del video de TikTok",
+        "url.fetch": "Buscar",
+        "url.fetching": "Buscando...",
+        "url.empty_hint": "Pega un enlace de TikTok y pulsa Buscar para ver el video.",
+        "url.download": "Descargar video",
+        "url.downloading": "Descargando...",
+        "url.saved_to": "Video guardado en:\n{path}",
+        "error.no_url": "Escribe o pega la URL de un video de TikTok.",
+        "error.invalid_url": "El enlace no es una URL válida de un video de TikTok.",
+        "error.video_unavailable": "No se pudo obtener el video. Puede ser privado, haber sido eliminado o el enlace es incorrecto.",
+        "dialog.error_title": "Error",
     },
     "en": {
         "app.title": "MagoLoader - Video Downloader without watermark",
@@ -101,6 +117,19 @@ TRANSLATIONS = {
         "update.message": "A new version is available ({latest}). Your current version is {current}. You must update to continue.",
         "update.download": "Download",
         "update.exit": "Exit",
+        "tabs.profile": "Profile",
+        "tabs.url": "Video URL",
+        "url.placeholder": "Paste the TikTok video link",
+        "url.fetch": "Fetch",
+        "url.fetching": "Fetching...",
+        "url.empty_hint": "Paste a TikTok link and press Fetch to preview the video.",
+        "url.download": "Download video",
+        "url.downloading": "Downloading...",
+        "url.saved_to": "Video saved to:\n{path}",
+        "error.no_url": "Enter or paste a TikTok video URL.",
+        "error.invalid_url": "This link is not a valid TikTok video URL.",
+        "error.video_unavailable": "Could not get the video. It may be private, deleted, or the link is wrong.",
+        "dialog.error_title": "Error",
     },
     "pt": {
         "app.title": "MagoLoader - Baixar vídeos sem marca d'água",
@@ -150,6 +179,19 @@ TRANSLATIONS = {
         "update.message": "Uma nova versão está disponível ({latest}). Sua versão atual é {current}. Você deve atualizar para continuar.",
         "update.download": "Baixar",
         "update.exit": "Sair",
+        "tabs.profile": "Perfil",
+        "tabs.url": "URL do vídeo",
+        "url.placeholder": "Cole o link do vídeo do TikTok",
+        "url.fetch": "Buscar",
+        "url.fetching": "Buscando...",
+        "url.empty_hint": "Cole um link do TikTok e clique em Buscar para ver o vídeo.",
+        "url.download": "Baixar vídeo",
+        "url.downloading": "Baixando...",
+        "url.saved_to": "Vídeo salvo em:\n{path}",
+        "error.no_url": "Digite ou cole a URL de um vídeo do TikTok.",
+        "error.invalid_url": "O link não é uma URL válida de vídeo do TikTok.",
+        "error.video_unavailable": "Não foi possível obter o vídeo. Ele pode ser privado, ter sido excluído ou o link está incorreto.",
+        "dialog.error_title": "Erro",
     },
 }
 
