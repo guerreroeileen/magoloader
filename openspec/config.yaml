@@ -25,18 +25,22 @@ context: |
     - Error Handling: Graceful error messages via UI popups or status labels without freezing the main loop.
     - Theme Tokens: Dark background (`#121212`), TikTok Red accent (`#FE2C55`), Card backgrounds (`#1E1E1E`, `#252525`), Text (`#FFFFFF`, `#B0B0B0`).
     - Coding style: UTF-8 standard encoding header (`# -*- coding: utf-8 -*-`), docstrings, explicit type hints.
+    - Translations: every user-facing string MUST use `t(key)` and exist in ALL supported languages (es, en, pt) in `magoloader/i18n/translations.py`. Verified by `python scripts/check_i18n.py`.
 
 # Per-artifact rules
 rules:
   proposal:
     - Explain user-facing impact and tech stack requirements clearly.
     - Highlight non-goals and potential performance/threading considerations.
+    - List any new or changed user-facing text and state that it will be translated to es, en and pt.
   design:
     - Detailed component hierarchy and data flow breakdown.
     - Document UI state changes, thread safety, and fallback handling.
+    - List the new/changed translation keys with their es, en and pt values.
   tasks:
     - Break work into atomic, testable execution tasks.
     - Include explicit manual and/or automated verification steps for every task.
+    - If the change touches user-facing text, include a task to add/update the keys in es, en AND pt, and a final task to run `python scripts/check_i18n.py`.
 
 # Per-operation guidance
 operations:
@@ -44,7 +48,10 @@ operations:
     guidance:
       - Ensure GUI remain responsive during network calls; do not block main thread.
       - Preserve existing multi-language translation strings when altering UI labels.
+      - Never hardcode user-facing text; add every new key to es, en and pt with matching placeholders.
+      - Run `python scripts/check_i18n.py` and `python -m unittest discover -s tests` before marking tasks complete.
       - Run clean build/tests to confirm functionality.
   archive:
     guidance:
       - Verify sync between main specs and delta specs before completing archive.
+      - Do not archive if `python scripts/check_i18n.py` fails.
