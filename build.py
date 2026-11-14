@@ -21,7 +21,7 @@ def build():
     # --icon: Icono de la aplicación
     # --name: Nombre del ejecutable
     # --add-data: Incluir archivos no-python (el icono)
-    # --collect-all: Recolectar dependencias completas de paquetes complejos (customtkinter, curl_cffi)
+    # --collect-all: Recolectar dependencias completas de paquetes complejos (customtkinter, curl_cffi, imageio_ffmpeg)
     
     cmd = [
         sys.executable, "-m", "PyInstaller",
@@ -32,6 +32,7 @@ def build():
         "--add-data=magoloader.ico;.",
         "--collect-all=customtkinter",
         "--collect-all=curl_cffi",  # Necesario para yt-dlp[curl-cffi]
+        "--collect-all=imageio_ffmpeg",  # Binario de FFmpeg para la personalización de video
         "main.py"
     ]
     

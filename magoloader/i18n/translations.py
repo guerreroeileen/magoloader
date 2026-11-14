@@ -67,6 +67,28 @@ TRANSLATIONS = {
         "error.no_url": "Escribe o pega la URL de un video de TikTok.",
         "error.invalid_url": "El enlace no es una URL válida de un video de TikTok.",
         "error.video_unavailable": "No se pudo obtener el video. Puede ser privado, haber sido eliminado o el enlace es incorrecto.",
+        "branding.title": "PERSONALIZACIÓN DE VIDEO (Opcional)",
+        "branding.enable": "Personalizar contenido",
+        "branding.color": "Color del degradado (HEX)",
+        "branding.pick_color": "Elegir color del degradado",
+        "branding.logo": "Logo (imagen)",
+        "branding.logo_dialog": "Seleccionar logo",
+        "branding.image_files": "Imágenes",
+        "branding.logo_remove": "Quitar",
+        "branding.no_logo": "Sin logo",
+        "branding.name": "Nombre de página (texto)",
+        "branding.name_placeholder": "@MiPagina",
+        "branding.applying": "Aplicando personalización...",
+        "error.invalid_hex": "El color debe ser un código HEX válido, por ejemplo #0000FF.",
+        "error.invalid_logo": "No se pudo abrir la imagen. Usa un archivo PNG, JPG o WEBP.",
+        "info.saved_unbranded": (
+            "El video se descargó, pero no se pudo aplicar la personalización. "
+            "Se guardó sin personalizar en:\n{path}"
+        ),
+        "info.download_finished_unbranded": (
+            "Descarga finalizada. {n} video(s) se guardaron sin personalizar "
+            "porque no se pudo aplicar la personalización."
+        ),
         "dialog.error_title": "Error",
     },
     "en": {
@@ -129,6 +151,28 @@ TRANSLATIONS = {
         "error.no_url": "Enter or paste a TikTok video URL.",
         "error.invalid_url": "This link is not a valid TikTok video URL.",
         "error.video_unavailable": "Could not get the video. It may be private, deleted, or the link is wrong.",
+        "branding.title": "VIDEO CUSTOMIZATION (Optional)",
+        "branding.enable": "Personalize content",
+        "branding.color": "Gradient color (HEX)",
+        "branding.pick_color": "Choose gradient color",
+        "branding.logo": "Logo (image)",
+        "branding.logo_dialog": "Select logo",
+        "branding.image_files": "Images",
+        "branding.logo_remove": "Remove",
+        "branding.no_logo": "No logo",
+        "branding.name": "Page name (text)",
+        "branding.name_placeholder": "@MyPage",
+        "branding.applying": "Applying customization...",
+        "error.invalid_hex": "The color must be a valid HEX code, for example #0000FF.",
+        "error.invalid_logo": "Could not open the image. Use a PNG, JPG or WEBP file.",
+        "info.saved_unbranded": (
+            "The video was downloaded, but the customization could not be applied. "
+            "It was saved without customization to:\n{path}"
+        ),
+        "info.download_finished_unbranded": (
+            "Download finished. {n} video(s) were saved without customization "
+            "because it could not be applied."
+        ),
         "dialog.error_title": "Error",
     },
     "pt": {
@@ -191,6 +235,28 @@ TRANSLATIONS = {
         "error.no_url": "Digite ou cole a URL de um vídeo do TikTok.",
         "error.invalid_url": "O link não é uma URL válida de vídeo do TikTok.",
         "error.video_unavailable": "Não foi possível obter o vídeo. Ele pode ser privado, ter sido excluído ou o link está incorreto.",
+        "branding.title": "PERSONALIZAÇÃO DE VÍDEO (Opcional)",
+        "branding.enable": "Personalizar conteúdo",
+        "branding.color": "Cor do degradê (HEX)",
+        "branding.pick_color": "Escolher cor do degradê",
+        "branding.logo": "Logo (imagem)",
+        "branding.logo_dialog": "Selecionar logo",
+        "branding.image_files": "Imagens",
+        "branding.logo_remove": "Remover",
+        "branding.no_logo": "Sem logo",
+        "branding.name": "Nome da página (texto)",
+        "branding.name_placeholder": "@MinhaPagina",
+        "branding.applying": "Aplicando personalização...",
+        "error.invalid_hex": "A cor deve ser um código HEX válido, por exemplo #0000FF.",
+        "error.invalid_logo": "Não foi possível abrir a imagem. Usa um ficheiro PNG, JPG ou WEBP.",
+        "info.saved_unbranded": (
+            "O vídeo foi descarregado, mas não foi possível aplicar a personalização. "
+            "Foi guardado sem personalização em:\n{path}"
+        ),
+        "info.download_finished_unbranded": (
+            "Descarregamento concluído. {n} vídeo(s) foram guardados sem personalização "
+            "porque não foi possível aplicá-la."
+        ),
         "dialog.error_title": "Erro",
     },
 }

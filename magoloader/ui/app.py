@@ -20,7 +20,8 @@ from magoloader.version import __version__
 from magoloader.core.analytics import Analytics
 from magoloader.i18n import t
 from magoloader.utils import ensure_dir
-from magoloader.ui.state import SaveDirState
+from magoloader.core.branding_settings import load_settings
+from magoloader.ui.state import BrandingState, SaveDirState
 from magoloader.ui.tabs import ProfileTab, UrlTab
 from magoloader.ui.task_runner import TaskRunner
 
@@ -55,6 +56,7 @@ class MagoLoaderApp(ctk.CTk):
         self.analytics.track_app_start()
         self.runner = TaskRunner(queue.Queue(), self.analytics)
         self.save_dir_state = SaveDirState(DEFAULT_SAVE_DIR)
+        self.branding_state = BrandingState(load_settings())
 
         self._build_ui()
         self._process_ui_queue()
@@ -84,6 +86,7 @@ class MagoLoaderApp(ctk.CTk):
             "runner": self.runner,
             "save_dir_state": self.save_dir_state,
             "analytics": self.analytics,
+            "branding_state": self.branding_state,
         }
         tabs = [
             (t("tabs.profile"), ProfileTab),

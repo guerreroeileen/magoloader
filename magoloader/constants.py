@@ -25,9 +25,13 @@ CARD_WIDTH = 340
 DEFAULT_SAVE_DIR = os.path.join(
     os.path.expanduser("~"), "Downloads", "MagoLoader"
 )
-CACHE_DIR = os.path.join(
-    os.path.expanduser("~"), ".magoloader", "cache", "thumbnails"
-)
+APP_DATA_DIR = os.path.join(os.path.expanduser("~"), ".magoloader")
+CACHE_DIR = os.path.join(APP_DATA_DIR, "cache", "thumbnails")
+
+# Personalización de video (marca)
+BRANDING_FILE = os.path.join(APP_DATA_DIR, "branding.json")
+BRANDING_LOGO_FILE = os.path.join(APP_DATA_DIR, "branding_logo.png")
+DEFAULT_BRANDING_COLOR = "#0000FF"
 
 # Ventana
 WINDOW_TITLE = "MagoLoader"

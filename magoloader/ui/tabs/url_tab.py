@@ -7,15 +7,17 @@ import customtkinter as ctk
 
 from magoloader.constants import COLOR_CARD, COLOR_TEXT_DIM
 from magoloader.core.analytics import Analytics
-from magoloader.core.downloader import download_video
+from magoloader.core.branding import BrandingError
+from magoloader.core.downloader import STAGE_BRANDING, download_video
 from magoloader.core.extractors.factory import ExtractorFactory
 from magoloader.core.models import VideoEntry
 from magoloader.i18n import t
+from magoloader.ui.components.branding_panel import BrandingPanel
 from magoloader.ui.components.footer import Footer
 from magoloader.ui.components.input_bar import InputBar
 from magoloader.ui.components.save_folder_picker import SaveFolderPicker
 from magoloader.ui.components.video_card import VideoCard
-from magoloader.ui.state import SaveDirState
+from magoloader.ui.state import BrandingState, SaveDirState
 from magoloader.ui.task_runner import TaskRunner
 from magoloader.utils import is_ytdlp_extraction_error, normalize_tiktok_video_url
 
@@ -57,12 +59,14 @@ class UrlTab(ctk.CTkFrame):
         runner: TaskRunner,
         save_dir_state: SaveDirState,
         analytics: Analytics,
+        branding_state: BrandingState,
         **kwargs,
     ):
         super().__init__(master, fg_color="transparent", **kwargs)
         self.runner = runner
         self.save_dir_state = save_dir_state
         self.analytics = analytics
+        self.branding_state = branding_state
 
         self._entry: Optional[VideoEntry] = None
         self._fetched_input: Optional[str] = None
@@ -91,8 +95,13 @@ class UrlTab(ctk.CTkFrame):
         side = ctk.CTkFrame(main, width=260, fg_color=COLOR_CARD, corner_radius=12)
         side.pack(side="left", fill="y", padx=(0, 16))
         side.pack_propagate(False)
-        SaveFolderPicker(side, save_dir_state=self.save_dir_state).pack(
+        side_body = ctk.CTkScrollableFrame(side, fg_color=COLOR_CARD, corner_radius=12)
+        side_body.pack(fill="both", expand=True)
+        SaveFolderPicker(side_body, save_dir_state=self.save_dir_state).pack(
             fill="x", padx=12, pady=(8, 0)
+        )
+        BrandingPanel(side_body, branding_state=self.branding_state, runner=self.runner).pack(
+            fill="x", padx=8, pady=(0, 12)
         )
 
         self.preview_area = ctk.CTkFrame(main, fg_color=COLOR_CARD, corner_radius=12)
@@ -205,10 +214,16 @@ class UrlTab(ctk.CTkFrame):
     def _on_download(self) -> None:
         if self._entry is None or self._fetch_running or self._download_running:
             return
+        try:
+            branding = self.branding_state.get().to_options()
+        except ValueError:
+            self.runner.show_error(t("error.invalid_hex"))
+            return
         entry = self._entry
         save_dir = self.save_dir_state.get()
 
         self._download_running = True
+        self.branding_state.set_locked(True)
         self.footer.set_progress(0)
         self.footer.set_button_text(t("url.downloading"))
         self._refresh_controls()
@@ -216,17 +231,38 @@ class UrlTab(ctk.CTkFrame):
         def on_progress(fraction: float) -> None:
             self.runner.post(lambda p=fraction: self.footer.set_progress(p))
 
+        def on_stage(stage: str) -> None:
+            if stage == STAGE_BRANDING:
+                self.runner.post(lambda: self.footer.set_button_text(t("branding.applying")))
+
         def do_download() -> None:
-            path = download_video(entry.url, save_dir, on_progress=on_progress)
+            try:
+                path = download_video(
+                    entry.url,
+                    save_dir,
+                    on_progress=on_progress,
+                    branding=branding,
+                    on_stage=on_stage,
+                )
+            except BrandingError as exc:
+                # La descarga sí terminó: se informa que quedó sin personalizar.
+                self.analytics.track_url_download()
+                self.runner.post(lambda p=exc.video_path: self._on_branding_failed(p))
+                return
             self.analytics.track_url_download()
             self.runner.post(lambda p=path: self._on_download_success(p, save_dir))
 
         def on_done() -> None:
             self._download_running = False
+            self.branding_state.set_locked(False)
             self.footer.set_button_text(t("url.download"))
             self._refresh_controls()
 
         self.runner.run(do_download, on_done, error_message=_map_url_error)
+
+    def _on_branding_failed(self, path: str) -> None:
+        self.footer.set_progress(1.0)
+        self.runner.show_info(t("info.saved_unbranded", path=path))
 
     def _on_download_success(self, path: Optional[str], save_dir: str) -> None:
         self.footer.set_progress(1.0)

@@ -8,9 +8,16 @@ from typing import Callable, List, Optional
 import yt_dlp
 from yt_dlp.utils import DownloadError, ExtractorError
 
+from magoloader.core.branding import BrandingOptions, apply_branding
+
 
 EXTRACT_RETRIES = 3
 RETRY_DELAY_SEC = 2
+
+# Con personalización, la descarga ocupa 0..DOWNLOAD_SHARE del progreso
+# y la personalización el resto.
+DOWNLOAD_SHARE = 0.6
+STAGE_BRANDING = "branding"
 
 
 def _base_opts() -> dict:
@@ -32,13 +39,49 @@ def download_video(
     save_dir: str,
     outtmpl: Optional[str] = None,
     on_progress: Optional[Callable[[float], None]] = None,
+    branding: Optional[BrandingOptions] = None,
+    on_stage: Optional[Callable[[str], None]] = None,
 ) -> Optional[str]:
     """
     Descarga un video por URL en save_dir y devuelve la ruta del archivo guardado.
     outtmpl: plantilla yt-dlp (por defecto fecha_título.ext).
     on_progress: callback opcional con la fracción completada (0..1). Se invoca
         desde el hilo de descarga; el llamador debe pasar el resultado al hilo UI.
+    branding: si se indica, se aplica la personalización tras la descarga
+        (el progreso cubre ambas etapas). Si falla, se lanza BrandingError y el
+        video sin personalizar se conserva.
+    on_stage: callback opcional que recibe STAGE_BRANDING al empezar la
+        personalización (desde el hilo de descarga).
     """
+    if branding is None:
+        return _download(url, save_dir, outtmpl, on_progress)
+
+    def download_progress(fraction: float) -> None:
+        if on_progress is not None:
+            on_progress(fraction * DOWNLOAD_SHARE)
+
+    def branding_progress(fraction: float) -> None:
+        if on_progress is not None:
+            on_progress(DOWNLOAD_SHARE + fraction * (1.0 - DOWNLOAD_SHARE))
+
+    # Sobrescribir: si el archivo ya existe (quizá ya personalizado), se vuelve a
+    # descargar el original para no aplicar la marca dos veces.
+    path = _download(url, save_dir, outtmpl, download_progress, overwrite=True)
+    if not path:
+        raise RuntimeError("Error descargando el video: no se encontró el archivo")
+    if on_stage is not None:
+        on_stage(STAGE_BRANDING)
+    return apply_branding(path, branding, on_progress=branding_progress)
+
+
+def _download(
+    url: str,
+    save_dir: str,
+    outtmpl: Optional[str],
+    on_progress: Optional[Callable[[float], None]],
+    overwrite: bool = False,
+) -> Optional[str]:
+    """Descarga con yt-dlp (sin personalización es el comportamiento original)."""
     if not outtmpl:
         outtmpl = os.path.join(
             save_dir, "%(upload_date)s_%(title).100s.%(ext)s"
@@ -48,6 +91,8 @@ def download_video(
         "outtmpl": outtmpl,
         "restrictfilenames": True,
     })
+    if overwrite:
+        opts["overwrites"] = True
     if on_progress is not None:
         opts["progress_hooks"] = [_make_progress_hook(on_progress)]
     try:

@@ -12,6 +12,7 @@ from magoloader.constants import (
     VIDEOS_PER_PAGE,
 )
 from magoloader.core.analytics import Analytics
+from magoloader.core.branding import BrandingError
 from magoloader.core.downloader import download_video
 from magoloader.core.extractors.factory import ExtractorFactory
 from magoloader.core.models import ProfileInfo, VideoEntry
@@ -21,7 +22,7 @@ from magoloader.ui.components.header import Header
 from magoloader.ui.components.pagination import PaginationBar
 from magoloader.ui.components.sidebar import Sidebar
 from magoloader.ui.components.video_card import VideoCard
-from magoloader.ui.state import SaveDirState
+from magoloader.ui.state import BrandingState, SaveDirState
 from magoloader.ui.task_runner import TaskRunner
 from magoloader.ui.thumbnail_loader import load_thumbnail_async
 
@@ -46,12 +47,14 @@ class ProfileTab(ctk.CTkFrame):
         runner: TaskRunner,
         save_dir_state: SaveDirState,
         analytics: Analytics,
+        branding_state: BrandingState,
         **kwargs,
     ):
         super().__init__(master, fg_color="transparent", **kwargs)
         self.runner = runner
         self.save_dir_state = save_dir_state
         self.analytics = analytics
+        self.branding_state = branding_state
 
         self.profile_info: Optional[ProfileInfo] = None
         self.video_entries: List[dict] = []
@@ -71,7 +74,12 @@ class ProfileTab(ctk.CTkFrame):
         main = ctk.CTkFrame(self, fg_color="transparent")
         main.pack(fill="both", expand=True, pady=(0, 12))
 
-        self.sidebar = Sidebar(main, save_dir_state=self.save_dir_state)
+        self.sidebar = Sidebar(
+            main,
+            save_dir_state=self.save_dir_state,
+            branding_state=self.branding_state,
+            runner=self.runner,
+        )
         self.sidebar.pack(side="left", fill="y", padx=(0, 16))
 
         center = ctk.CTkFrame(main, fg_color="transparent")
@@ -271,18 +279,36 @@ class ProfileTab(ctk.CTkFrame):
             return
         if self._download_running:
             return
+        try:
+            branding = self.branding_state.get().to_options()
+        except ValueError:
+            self.runner.show_error(t("error.invalid_hex"))
+            return
         self._download_running = True
+        self.branding_state.set_locked(True)
         self.footer.set_download_enabled(False)
         self.footer.set_progress(0)
 
         total = len(selected)
         save_dir = self.save_dir_state.get()
+        branding_failures = [0]
 
         def do_download() -> None:
             self.analytics.track_download(total)
             for i, entry in enumerate(selected):
+                def on_progress(fraction: float, index: int = i) -> None:
+                    pct = (index + fraction) / total
+                    self.runner.post(lambda p=pct: self.footer.set_progress(p))
+
                 try:
-                    download_video(entry["url"], save_dir)
+                    download_video(
+                        entry["url"],
+                        save_dir,
+                        on_progress=on_progress if branding is not None else None,
+                        branding=branding,
+                    )
+                except BrandingError:
+                    branding_failures[0] += 1
                 except Exception:
                     pass
                 pct = (i + 1) / total
@@ -290,7 +316,13 @@ class ProfileTab(ctk.CTkFrame):
 
         def on_done() -> None:
             self._download_running = False
+            self.branding_state.set_locked(False)
             self.footer.set_download_enabled(True)
-            self.runner.show_info(t("info.download_finished"))
+            if branding_failures[0]:
+                self.runner.show_info(
+                    t("info.download_finished_unbranded", n=branding_failures[0])
+                )
+            else:
+                self.runner.show_info(t("info.download_finished"))
 
         self.runner.run(do_download, on_done)

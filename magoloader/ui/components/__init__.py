@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Componentes de UI reutilizables."""
 
+from magoloader.ui.components.branding_panel import BrandingPanel
 from magoloader.ui.components.input_bar import InputBar
 from magoloader.ui.components.header import Header
 from magoloader.ui.components.save_folder_picker import SaveFolderPicker
@@ -10,6 +11,7 @@ from magoloader.ui.components.pagination import PaginationBar
 from magoloader.ui.components.video_card import VideoCard
 
 __all__ = [
+    "BrandingPanel",
     "InputBar",
     "Header",
     "SaveFolderPicker",
